@@ -45,6 +45,7 @@ env:
     CONFIG_FIRMWARE_INCLUDE_ADGUARDHOME
     CONFIG_FIRMWARE_INCLUDE_ZEROTIER
     CONFIG_FIRMWARE_INCLUDE_WING
+    CONFIG_FIRMWARE_INCLUDE_OPENVPN
   DISABLED_CFG: |
     CONFIG_FIRMWARE_INCLUDE_LANG_UK
     CONFIG_FIRMWARE_INCLUDE_TCPDUMP
@@ -82,11 +83,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - build_variant: "mt7620"
+       #   - build_variant: "mt7620"
             targets: "NEWIFI-MINI"
           - build_variant: "mt7621"
             targets: "RM2100"
-          - build_variant: "mt7621-usb-1"
+       #   - build_variant: "mt7621-usb-1"
             targets: "NEWIFI3"
         #  - build_variant: "mt7621-usb-2"
         #    targets: "JCG-836PRO-5.0 JCG-AC860M-5.0 JCG-Y2-5.0 DIR-882-5.0 MI-R3G B70"
