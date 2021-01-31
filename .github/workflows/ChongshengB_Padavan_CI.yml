@@ -4,11 +4,11 @@
 name: ChongshengB_Padavan_CI
 
 on: 
-#  release:
-#    types: [published]
-#  push:                                                        # 推送操作
-#    tags:
-#      - 'v*'
+  release:
+    types: [published]
+  push:                                                        # 推送操作
+    tags:
+      - 'v*'
 #    branches:                                                  # 分支
 #      - main                                                   # 主分支
   workflow_dispatch:
