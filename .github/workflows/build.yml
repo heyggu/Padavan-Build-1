@@ -15,45 +15,37 @@ jobs:
         uses: actions/checkout@v4
 
       # 步骤2: 安装依赖并下载、解压 SDK
-      # 将所有相关操作合并到一步，以确保文件上下文一致性
       - name: Setup SDK
         run: |
-          # 安装 zstd 解压工具
           sudo apt-get update && sudo apt-get install -y zstd
-          
-          # 定义SDK的URL和本地文件名
           SDK_URL="https://downloads.immortalwrt.org/releases/24.10.2/targets/ramips/mt7620/immortalwrt-sdk-24.10.2-ramips-mt7620_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
           SDK_FILE="immortalwrt-sdk.tar.zst"
-          
-          echo "Downloading SDK from $SDK_URL"
-          
-          # 使用 curl 下载，因为它在处理重定向和错误时更可靠
-          # -L: 自动跟随重定向
-          # -f: 当HTTP状态码为错误时，静默失败（返回非零退出码）
-          # -o: 指定输出文件名
           curl -Lfo $SDK_FILE "$SDK_URL"
-          
-          # 检查文件是否下载成功且非空
           if [ ! -s "$SDK_FILE" ]; then
             echo "::error::SDK download failed or the file is empty."
             exit 1
           fi
-          
-          echo "SDK downloaded successfully. File size: $(ls -lh $SDK_FILE)"
-          
-          # 创建解压目录并解压
           mkdir sdk
           tar -I zstd -xf $SDK_FILE -C sdk --strip-components=1
           echo "SDK extracted successfully."
 
-      # 步骤3: 编译 C 代码
+      # 步骤3: 编译 C 代码 (已修正查找编译器的方法)
       - name: Compile rc4_encryptor
         run: |
-          TOOLCHAIN_DIR=$(ls -d sdk/staging_dir/toolchain-*)
-          CC="${TOOLCHAIN_DIR}/bin/$(ls ${TOOLCHAIN_DIR}/bin | grep '-gcc')"
+          # 使用 find 命令来安全地查找编译器，避免 grep 的解析问题
+          # -type f: 只查找文件
+          # -name '*-gcc': 查找以 -gcc 结尾的文件
+          # -print -quit: 找到第一个匹配项后就打印并退出
+          CC=$(find sdk/staging_dir/toolchain-*/bin -type f -name '*-gcc' -print -quit)
           
+          if [ -z "$CC" ]; then
+            echo "::error::Cross-compiler not found!"
+            exit 1
+          fi
+
           echo "Using compiler: $CC"
           
+          # 执行编译
           $CC rc4.c -o rc4_encryptor -static
           
           echo "Compilation finished."
