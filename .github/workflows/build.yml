@@ -29,13 +29,10 @@ jobs:
           tar -I zstd -xf $SDK_FILE -C sdk --strip-components=1
           echo "SDK extracted successfully."
 
-      # 步骤3: 编译 C 代码 (已修正查找编译器的方法)
+      # 步骤3: 编译 C 代码 (已修正为正确的 rc4.c 路径)
       - name: Compile rc4_encryptor
         run: |
-          # 使用 find 命令来安全地查找编译器，避免 grep 的解析问题
-          # -type f: 只查找文件
-          # -name '*-gcc': 查找以 -gcc 结尾的文件
-          # -print -quit: 找到第一个匹配项后就打印并退出
+          # 找到编译器
           CC=$(find sdk/staging_dir/toolchain-*/bin -type f -name '*-gcc' -print -quit)
           
           if [ -z "$CC" ]; then
@@ -44,12 +41,23 @@ jobs:
           fi
 
           echo "Using compiler: $CC"
+
+          # 定义源文件和输出文件的路径
+          SOURCE_FILE=".github/workflows/rc4.c"
+          OUTPUT_FILE="rc4_encryptor"
+
+          # 检查源文件是否存在
+          if [ ! -f "$SOURCE_FILE" ]; then
+            echo "::error::Source file not found at $SOURCE_FILE"
+            ls -R # 打印出所有文件和目录结构，方便调试
+            exit 1
+          fi
           
-          # 执行编译
-          $CC rc4.c -o rc4_encryptor -static
+          # 执行编译，明确指定源文件和输出文件的路径
+          $CC "$SOURCE_FILE" -o "$OUTPUT_FILE" -static
           
           echo "Compilation finished."
-          ls -l rc4_encryptor
+          ls -l "$OUTPUT_FILE"
 
       # 步骤4: 上传构建产物
       - name: Upload artifact
