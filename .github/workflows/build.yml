@@ -1,0 +1,51 @@
+name: Build rc4_encryptor for ImmortalWrt
+
+# 当有代码推送到 main 分支，或者手动触发时，运行此工作流
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 步骤1: 检出你的代码
+      # 这会把你的 rc4.c 文件下载到 Actions 运行环境中
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 步骤2: 下载并解压 ImmortalWrt SDK
+      # 我们根据你提供的信息，使用快照版本的 SDK
+      - name: Download and extract SDK
+        run: |
+          SDK_URL="https://downloads.immortalwrt.org/snapshots/targets/ramips/mt7620/immortalwrt-sdk-ramips-mt7620.Linux-x86_64.tar.xz"
+          echo "Downloading SDK from $SDK_URL"
+          wget -q $SDK_URL -O immortalwrt-sdk.tar.xz
+          mkdir sdk
+          tar -xf immortalwrt-sdk.tar.xz -C sdk --strip-components=1
+
+      # 步骤3: 编译 C 代码
+      # 使用 SDK 中的交叉编译器进行编译
+      - name: Compile rc4_encryptor
+        run: |
+          # 找到交叉编译器的路径
+          TOOLCHAIN_DIR=$(ls -d sdk/staging_dir/toolchain-*)
+          CC="${TOOLCHAIN_DIR}/bin/$(ls ${TOOLCHAIN_DIR}/bin | grep '-gcc')"
+          
+          echo "Using compiler: $CC"
+          
+          # 执行编译，-static 参数确保可移植性
+          $CC rc4.c -o rc4_encryptor -static
+          
+          echo "Compilation finished."
+          ls -l rc4_encryptor
+
+      # 步骤4: 上传构建产物
+      # 将编译好的 rc4_encryptor 文件作为可下载的 "Artifact"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rc4_encryptor_mipsel_24kc
+          path: rc4_encryptor
