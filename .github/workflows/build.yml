@@ -20,11 +20,11 @@ jobs:
       # 我们根据你提供的信息，使用快照版本的 SDK
       - name: Download and extract SDK
         run: |
-          SDK_URL="https://downloads.immortalwrt.org/snapshots/targets/ramips/mt7620/immortalwrt-sdk-ramips-mt7620.Linux-x86_64.tar.xz"
+          SDK_URL="https://downloads.immortalwrt.org/releases/24.10.2/targets/ramips/mt7620/immortalwrt-sdk-24.10.2-ramips-mt7620_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
           echo "Downloading SDK from $SDK_URL"
           wget -q $SDK_URL -O immortalwrt-sdk.tar.xz
           mkdir sdk
-          tar -xf immortalwrt-sdk.tar.xz -C sdk --strip-components=1
+          tar -I zstd -xf immortalwrt-sdk.tar.zst -C sdk --strip-components=1
 
       # 步骤3: 编译 C 代码
       # 使用 SDK 中的交叉编译器进行编译
