@@ -18,7 +18,8 @@ jobs:
       - name: Setup SDK
         run: |
           sudo apt-get update && sudo apt-get install -y zstd
-          SDK_URL="https://downloads.immortalwrt.org/releases/24.10.2/targets/ramips/mt7620/immortalwrt-sdk-24.10.2-ramips-mt7620_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+          #SDK_URL="https://downloads.immortalwrt.org/releases/24.10.2/targets/ramips/mt7620/immortalwrt-sdk-24.10.2-ramips-mt7620_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+          SDK_URL="https://downloads.immortalwrt.org/releases/25.12-SNAPSHOT/targets/qualcommax/ipq60xx/immortalwrt-sdk-25.12-SNAPSHOT-qualcommax-ipq60xx_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
           SDK_FILE="immortalwrt-sdk.tar.zst"
           curl -Lfo $SDK_FILE "$SDK_URL"
           if [ ! -s "$SDK_FILE" ]; then
